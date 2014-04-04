@@ -9,137 +9,64 @@ void setUp(void){}
 
 void tearDown(void){}
 
-void test_evaluateOperator_should_plus_2_and_3(void){
-	Stack dataStack;
+void test_evaluate_should_throw_error_when_not_data(){
+	int exception;
+	Tokenizer tokenizer;
+	Stack operatorStack, dataStack;
+	
 	OperatorToken plus = {.type = OPERATOR_TOKEN, .name = "+", .precedence = 70};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 2};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 3};
-	NumberToken answer = {.type = NUMBER_TOKEN, .value = 5};
 	
-	pop_ExpectAndReturn(&dataStack, &number1);
-	pop_ExpectAndReturn(&dataStack, &number2);
-	createNumberToken_ExpectAndReturn(5, &answer);
-	push_Expect(&dataStack, &answer);
+	tokenizerNew_ExpectAndReturn("+", &tokenizer);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&plus);
 	
-	evaluateOperator(&dataStack, &plus);
-	
+	Try{
+		evaluate("+", &operatorStack, &dataStack);
+	}Catch(exception){
+		TEST_ASSERT_EQUAL(ERR_NOT_DATA, exception);
+	}
 }
 
-void test_evaluateOperator_should_minus_2_and_3(void){
-	Stack dataStack;
-	OperatorToken minus = {.type = OPERATOR_TOKEN, .name = "-", .precedence = 70};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 2};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 3};
-	NumberToken answer = {.type = NUMBER_TOKEN, .value = -1};
+void test_evaluate_should_throw_error_when_not_operator(){
+	int exception;
+	Tokenizer tokenizer;
+	Stack operatorStack, dataStack;
 	
-	pop_ExpectAndReturn(&dataStack, &number1);
-	pop_ExpectAndReturn(&dataStack, &number2);
-	createNumberToken_ExpectAndReturn(-1, &answer);
-	push_Expect(&dataStack, &answer);
+	NumberToken number38 = {.type = NUMBER_TOKEN, .value = 38};
+	NumberToken number39 = {.type = NUMBER_TOKEN, .value = 39};
 	
-	evaluateOperator(&dataStack, &minus);
+	tokenizerNew_ExpectAndReturn("38 39", &tokenizer);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number38);
+	//push_Expect(&operatorStack, &dataStack, &number38);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number39);
+	//push_Expect(&operatorStack, &dataStack, &number39);
 	
+	Try{
+		evaluate("38 39", &operatorStack, &dataStack);
+	}Catch(exception){
+		TEST_ASSERT_EQUAL(ERR_NOT_OPERATOR, exception);
+	}
 }
 
-void test_evaluateOperator_should_xor_5_and_6(void){
-	Stack dataStack;
-	OperatorToken xor = {.type = OPERATOR_TOKEN, .name = "^", .precedence = 50};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 5};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 6};
+void test_evaluate_1_plus_2(){
+	int exception;
+	Tokenizer tokenizer;
+	Stack operatorStack, dataStack;
+	
+	OperatorToken plus= {.type = OPERATOR_TOKEN, .name = "+", .precedence = 100};
+	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 1};
+	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 2};
 	NumberToken answer = {.type = NUMBER_TOKEN, .value = 3};
+	
+	tokenizerNew_ExpectAndReturn("1+2", &tokenizer);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number1);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number2);
 	
 	pop_ExpectAndReturn(&dataStack, &number1);
 	pop_ExpectAndReturn(&dataStack, &number2);
 	createNumberToken_ExpectAndReturn(3, &answer);
 	push_Expect(&dataStack, &answer);
 	
-	evaluateOperator(&dataStack, &xor);
-	
+	evaluate("1+2", &operatorStack, &dataStack);
 }
-
-void test_evaluateOperator_should_and_5_and_6(void){
-	Stack dataStack;
-	OperatorToken and = {.type = OPERATOR_TOKEN, .name = "&", .precedence = 20};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 5};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 6};
-	NumberToken answer = {.type = NUMBER_TOKEN, .value = 5};
-	
-	pop_ExpectAndReturn(&dataStack, &number1);
-	pop_ExpectAndReturn(&dataStack, &number2);
-	createNumberToken_ExpectAndReturn(4, &answer);
-	push_Expect(&dataStack, &answer);
-	
-	evaluateOperator(&dataStack, &and);
-	
-}
-
-void test_evaluateOperator_should_multiply_5_and_6(void){
-	Stack dataStack;
-	OperatorToken multiply = {.type = OPERATOR_TOKEN, .name = "*", .precedence = 100};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 5};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 6};
-	NumberToken answer = {.type = NUMBER_TOKEN, .value = 30};
-	
-	pop_ExpectAndReturn(&dataStack, &number1);
-	pop_ExpectAndReturn(&dataStack, &number2);
-	createNumberToken_ExpectAndReturn(30, &answer);
-	push_Expect(&dataStack, &answer);
-	
-	evaluateOperator(&dataStack, &multiply);
-	
-}
-
-void test_evaluateOperator_should_divide_5_and_6(void){
-	Stack dataStack;
-	OperatorToken divide = {.type = OPERATOR_TOKEN, .name = "/", .precedence = 100};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 30};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 6};
-	NumberToken answer = {.type = NUMBER_TOKEN, .value = 5};
-	
-	pop_ExpectAndReturn(&dataStack, &number1);
-	pop_ExpectAndReturn(&dataStack, &number2);
-	createNumberToken_ExpectAndReturn(5, &answer);
-	push_Expect(&dataStack, &answer);
-	
-	evaluateOperator(&dataStack, &divide);
-	
-}
-
-void test_evaluateOperator_should_modulo_5_and_6(void){
-	Stack dataStack;
-	OperatorToken modulo = {.type = OPERATOR_TOKEN, .name = "%", .precedence = 100};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 30};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 4};
-	NumberToken answer = {.type = NUMBER_TOKEN, .value = 2};
-	
-	pop_ExpectAndReturn(&dataStack, &number1);
-	pop_ExpectAndReturn(&dataStack, &number2);
-	createNumberToken_ExpectAndReturn(2, &answer);
-	push_Expect(&dataStack, &answer);
-	
-	evaluateOperator(&dataStack, &modulo);
-	
-}
-
-void test_evaluateOperator_should_throw_error_when_not_operator(void){
-	int exception;
-	Stack dataStack;
-	OperatorToken modulo = {.type = OPERATOR_TOKEN, .name = ":", .precedence = 100};
-	NumberToken number1 = {.type = NUMBER_TOKEN, .value = 30};
-	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 4};
-	NumberToken answer = {.type = NUMBER_TOKEN, .value = 2};
-	
-	pop_ExpectAndReturn(&dataStack, &number1);
-	pop_ExpectAndReturn(&dataStack, &number2);
-	
-	Try{
-		evaluateOperator(&dataStack, &modulo);
-	}Catch(exception){
-		TEST_ASSERT_EQUAL(ERR_NOT_OPERATOR, exception);
-	}
-}
-
-
-
 
 
