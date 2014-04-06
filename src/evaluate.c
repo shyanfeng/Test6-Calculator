@@ -12,21 +12,25 @@ int evaluate(char *expression, Stack *operatorStack, Stack *dataStack){
 	OperatorToken *operator;
 	
 	tokenizer = tokenizerNew(expression);
-	number = (NumberToken *)nextToken(tokenizer);
 	
+	while(1){
+	number = (NumberToken *)nextToken(tokenizer);
 	if(number == NULL){
 		Throw(ERR_NO_EXPRESSION);
 	}else if(number->type != NUMBER_TOKEN){
 		Throw(ERR_NOT_DATA);
+	}else{
+		push(dataStack, number);
 	}
-	push(dataStack, number);
 	
 	operator = (OperatorToken *)nextToken(tokenizer);
-	if(operator->type !=OPERATOR_TOKEN){
+	if(operator == NULL){
+		break;
+	}else if(operator->type != OPERATOR_TOKEN){
 		Throw(ERR_NOT_OPERATOR);
-	}
-	else{
+	}else{
 		tryEvaluateOperatorsOnStackThenPush(dataStack, operatorStack, operator);
+	}
 	}
 	evaluateAllOperatorsOnStack(dataStack, operatorStack);
 }
@@ -34,12 +38,16 @@ int evaluate(char *expression, Stack *operatorStack, Stack *dataStack){
 void tryEvaluateOperatorsOnStackThenPush(Stack *dataStack, Stack *operatorStack, OperatorToken *operator){
 	OperatorToken *tokenCheck = pop(operatorStack);
 	
-	if(tokenCheck->precedence >= operator->precedence){
-		evaluateOperator(dataStack, tokenCheck);
-	}
-	else{
-		push(operatorStack, tokenCheck);
+	if(tokenCheck == NULL){
 		push(operatorStack, operator);
+	}else{
+		if(tokenCheck->precedence >= operator->precedence){
+			evaluateOperator(dataStack, tokenCheck);
+		}
+		else{
+			push(operatorStack, tokenCheck);
+			push(operatorStack, operator);
+		}
 	}
 }
 
