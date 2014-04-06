@@ -9,7 +9,7 @@ void setUp(void){}
 
 void tearDown(void){}
 
-void test_evaluate_should_throw_error_when_not_data(){
+void test_evaluate_should_throw_error_when_plus(){
 	int exception;
 	Tokenizer tokenizer;
 	Stack operatorStack, dataStack;
@@ -26,7 +26,7 @@ void test_evaluate_should_throw_error_when_not_data(){
 	}
 }
 
-void test_evaluate_should_throw_error_when_not_operator(){
+void test_evaluate_should_throw_error_when_38_39(){
 	int exception;
 	Tokenizer tokenizer;
 	Stack operatorStack, dataStack;
@@ -41,6 +41,84 @@ void test_evaluate_should_throw_error_when_not_operator(){
 	
 	Try{
 		evaluate("38 39", &operatorStack, &dataStack);
+	}Catch(exception){
+		TEST_ASSERT_EQUAL(ERR_NOT_OPERATOR, exception);
+	}
+}
+
+void test_evaluate_should_throw_error_when_40_plus_multiple(){
+	int exception;
+	Tokenizer tokenizer;
+	Stack operatorStack, dataStack;
+	
+	OperatorToken plus = {.type = OPERATOR_TOKEN, .name = "+", .precedence = 70};
+	OperatorToken multiply = {.type = OPERATOR_TOKEN, .name = "*", .precedence = 100};
+	NumberToken number40 = {.type = NUMBER_TOKEN, .value = 40};
+	NumberToken number41 = {.type = NUMBER_TOKEN, .value = 41};
+	
+	tokenizerNew_ExpectAndReturn("40+*41", &tokenizer);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number40);
+	push_Expect(&dataStack, &number40);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&plus);
+	pop_ExpectAndReturn(&operatorStack, NULL);
+	push_Expect(&operatorStack, &plus);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&multiply);
+	
+	Try{
+		evaluate("40+*41", &operatorStack, &dataStack);
+	}Catch(exception){
+		TEST_ASSERT_EQUAL(ERR_NOT_DATA, exception);
+	}
+}
+
+void test_evaluate_should_throw_error_when_42_xor_2_minus(){
+	int exception;
+	Tokenizer tokenizer;
+	Stack operatorStack, dataStack;
+	
+	OperatorToken xor = {.type = OPERATOR_TOKEN, .name = "^", .precedence = 10};
+	OperatorToken minus = {.type = OPERATOR_TOKEN, .name = "-", .precedence = 70};
+	NumberToken number42 = {.type = NUMBER_TOKEN, .value = 40};
+	NumberToken number2 = {.type = NUMBER_TOKEN, .value = 2};
+	
+	tokenizerNew_ExpectAndReturn("42^2-", &tokenizer);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number42);
+	push_Expect(&dataStack, &number42);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&xor);
+	pop_ExpectAndReturn(&operatorStack, NULL);
+	push_Expect(&operatorStack, &xor);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number2);
+	push_Expect(&dataStack, &number2);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&minus);
+	pop_ExpectAndReturn(&operatorStack, &xor);
+	push_Expect(&operatorStack, &xor);
+	push_Expect(&operatorStack, &minus);
+	nextToken_ExpectAndReturn(&tokenizer, NULL);
+	
+	Try{
+		evaluate("42^2-", &operatorStack, &dataStack);
+	}Catch(exception){
+		TEST_ASSERT_EQUAL(ERR_NO_EXPRESSION, exception);
+	}
+}
+
+void test_evaluate_should_throw_error_when_43_hashtag_44(){
+	int exception;
+	Tokenizer tokenizer;
+	Stack operatorStack, dataStack;
+	
+	OperatorToken hashtag = {.type = OPERATOR_TOKEN, .name = "#", .precedence = 70};
+	NumberToken number43 = {.type = NUMBER_TOKEN, .value = 43};
+	NumberToken number44 = {.type = NUMBER_TOKEN, .value = 44};
+	
+	tokenizerNew_ExpectAndReturn("43#44", &tokenizer);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number43);
+	push_Expect(&dataStack, &number43);
+	nextToken_ExpectAndThrow(&tokenizer, ERR_NOT_OPERATOR);
+
+	
+	Try{
+		evaluate("43#44", &operatorStack, &dataStack);
 	}Catch(exception){
 		TEST_ASSERT_EQUAL(ERR_NOT_OPERATOR, exception);
 	}
