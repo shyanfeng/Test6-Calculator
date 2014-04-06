@@ -19,13 +19,16 @@ int evaluate(char *expression, Stack *operatorStack, Stack *dataStack){
 	}else if(number->type != NUMBER_TOKEN){
 		Throw(ERR_NOT_DATA);
 	}
-	//push(dataStack, number);
+	push(dataStack, number);
 	
 	operator = (OperatorToken *)nextToken(tokenizer);
 	if(operator->type !=OPERATOR_TOKEN){
 		Throw(ERR_NOT_OPERATOR);
 	}
-	//push(operatorStack, operator);
+	else{
+		tryEvaluateOperatorsOnStackThenPush(dataStack, operatorStack, operator);
+	}
+	evaluateAllOperatorsOnStack(dataStack, operatorStack);
 }
 
 void tryEvaluateOperatorsOnStackThenPush(Stack *dataStack, Stack *operatorStack, OperatorToken *operator){

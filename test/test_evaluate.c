@@ -36,9 +36,8 @@ void test_evaluate_should_throw_error_when_not_operator(){
 	
 	tokenizerNew_ExpectAndReturn("38 39", &tokenizer);
 	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number38);
-	//push_Expect(&operatorStack, &dataStack, &number38);
+	push_Expect(&dataStack, &number38);
 	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number39);
-	//push_Expect(&operatorStack, &dataStack, &number39);
 	
 	Try{
 		evaluate("38 39", &operatorStack, &dataStack);
@@ -59,13 +58,20 @@ void test_evaluate_1_plus_2(){
 	
 	tokenizerNew_ExpectAndReturn("1+2", &tokenizer);
 	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number1);
+	push_Expect(&dataStack, &number1);
+	nextToken_ExpectAndReturn(&tokenizer, (Token *)&plus);
+	push_Expect(&operatorStack, &plus);
 	nextToken_ExpectAndReturn(&tokenizer, (Token *)&number2);
+	push_Expect(&dataStack, &number2);
 	
+	nextToken_ExpectAndReturn(&tokenizer, NULL);
+	pop_ExpectAndReturn(&operatorStack, &plus);
 	pop_ExpectAndReturn(&dataStack, &number1);
 	pop_ExpectAndReturn(&dataStack, &number2);
 	createNumberToken_ExpectAndReturn(3, &answer);
 	push_Expect(&dataStack, &answer);
 	
+	pop_ExpectAndReturn(&operatorStack, NULL);
 	evaluate("1+2", &operatorStack, &dataStack);
 }
 
